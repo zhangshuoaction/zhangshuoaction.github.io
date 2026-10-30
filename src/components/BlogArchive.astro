@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedPosts, formatDate, postUrl, tagUrl, readingTime } from '../lib/posts';
+const posts = await getPublishedPosts();
+const years = [...new Set(posts.map((p) => p.data.pubDate.getUTCFullYear()))];
+---
+<BaseLayout title="博客" description="Action Blog 的全部文章：产品思考、技术笔记与日常实践。">
+  <div class="container page-shell blog-list-page">
+    <h1 class="sr-only">博客</h1>
+    <div class="page-total">共 {posts.length} 篇文章<span>按发布时间倒序</span></div>
+    {years.map((year) => <section class="archive-group" aria-label={year + ' 年文章'}><div class="archive-year">{year}<span> /</span></div><div class="archive-items">{posts.filter((p) => p.data.pubDate.getUTCFullYear() === year).map((post) => <article class="archive-item"><div class="archive-date"><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate).slice(5)}</time><span>{readingTime(post.body)} 分钟阅读</span></div><div class="archive-copy"><div class="inline-tags">{post.data.tags.map((tag) => <a href={tagUrl(tag)}># {tag}</a>)}{post.data.sample && <span class="sample-label">示例文章</span>}</div><h2><a href={postUrl(post)}>{post.data.title}</a></h2><p>{post.data.description}</p></div><a class="archive-arrow" href={postUrl(post)} aria-label={'阅读：' + post.data.title}>↗</a></article>)}</div></section>)}
+    {posts.length === 0 && <p class="empty-state">第一篇文章正在路上。</p>}
+  </div>
+</BaseLayout>

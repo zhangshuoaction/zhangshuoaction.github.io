@@ -1,0 +1,43 @@
+name: Deploy blog to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://zhangshuoaction.github.io
+  ASTRO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+      - name: Install, validate, build and upload site
+        uses: withastro/action@v6
+        with:
+          node-version: "24"
+          build-cmd: npm run check && npm run build && node scripts/verify-build.mjs && node scripts/verify-production.mjs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy site
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1

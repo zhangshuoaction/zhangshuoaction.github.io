@@ -1,0 +1,6 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedPosts, getTags, tagUrl } from '../../lib/posts';
+const tags = getTags(await getPublishedPosts());
+---
+<BaseLayout title="标签" description="按主题探索 Action Blog 的文章。"><div class="container page-shell"><div class="page-heading"><div class="eyebrow">A MAP OF INTERESTS</div><h1>不同主题，<br /><span class="muted-title">同一份好奇。</span></h1><p>选择一个感兴趣的话题，看看它留下了哪些记录。</p></div><div class="tag-grid">{tags.map(({ name, count }, index) => <a class="tag-card" href={tagUrl(name)}><div><span class="tag-number">{String(index + 1).padStart(2, '0')}</span><span aria-hidden="true">↗</span></div><h2><span>#</span> {name}</h2><p>{count} 篇文章</p></a>)}</div>{tags.length === 0 && <p class="empty-state">发布带有标签的文章后，主题会出现在这里。</p>}</div></BaseLayout>

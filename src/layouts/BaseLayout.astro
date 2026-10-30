@@ -1,0 +1,32 @@
+---
+import Header from '../components/Header.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import '../styles/global.css';
+import '../styles/navigation.css';
+import themeInit from '../scripts/theme-init.js?raw';
+interface Props { title?: string; description?: string; article?: boolean; pubDate?: Date; updatedDate?: Date; noindex?: boolean; }
+const { title, description = SITE_DESCRIPTION, article = false, pubDate, updatedDate, noindex = false } = Astro.props;
+const fullTitle = title ? title + ' · ' + SITE_TITLE : SITE_TITLE + ' · 思考、记录与实践';
+const canonical = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
+const local = ['localhost', '127.0.0.1'].includes(canonical.hostname);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" /><script is:inline set:html={themeInit} /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} /><meta name="theme-color" content="#f6f5ef" /><meta name="generator" content={Astro.generator} />
+    {(noindex || local) && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+    <meta property="og:title" content={fullTitle} /><meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? 'article' : 'website'} /><meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE_TITLE} /><meta property="og:locale" content="zh_CN" />
+    <meta property="og:image" content={new URL('/social-card.svg', canonical)} /><meta name="twitter:card" content="summary" />
+    {pubDate && <meta property="article:published_time" content={pubDate.toISOString()} />}{updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a><Header /><main id="main"><slot /></main>
+    <footer class="site-footer container"><p>© {new Date().getFullYear()} Action Blog · Built with Astro</p></footer>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+---
+import { formatDate, postUrl, readingTime, tagUrl, type Post } from '../lib/posts';
+interface Props { post: Post; index?: number; }
+const { post, index = 0 } = Astro.props;
+---
+<article class="post-card">
+  <div class="card-top">{post.data.tags[0] ? <a class="category" href={tagUrl(post.data.tags[0])}>{post.data.tags[0]}</a> : <span class="category">随笔</span>}<span class="issue">{String(index + 1).padStart(2, '0')}</span></div>
+  <h3><a href={postUrl(post)}>{post.data.title}</a></h3><p class="card-description">{post.data.description}</p>
+  <div class="card-bottom"><span><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time><span class="meta-dot">·</span>{readingTime(post.body)} 分钟</span><a class="card-arrow" href={postUrl(post)} aria-label={'阅读：' + post.data.title}>↗</a></div>
+  {post.data.sample && <span class="sample-label">示例文章</span>}
+</article>

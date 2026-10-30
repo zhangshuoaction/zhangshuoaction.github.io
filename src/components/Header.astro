@@ -1,0 +1,33 @@
+---
+import { SITE_TITLE } from '../consts';
+import { getPublishedPosts, postUrl, formatDate } from '../lib/posts';
+import searchLogic from '../lib/search.mjs?raw';
+import navigation from '../scripts/navigation.js?raw';
+const current = Astro.url.pathname;
+const posts = await getPublishedPosts();
+const clientScript = "document.addEventListener('DOMContentLoaded', () => {\n" + searchLogic.replace(/^export /gm, '') + '\n' + navigation + '\n});';
+const plainText = (body = '') => body.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, ' ').replace(/[`*_>#~|]/g, '').replace(/\s+/g, ' ').trim();
+---
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label={SITE_TITLE + ' 博客'}><span class="brand-mark" aria-hidden="true">A<span></span></span><span>{SITE_TITLE}</span></a>
+    <nav aria-label="主导航">
+      <a href="/" aria-current={current === '/' || current.startsWith('/blog/') ? 'page' : undefined}>博客</a>
+      <a href="/about/" aria-current={current.startsWith('/about/') ? 'page' : undefined}>关于</a>
+      <a class="subscribe-nav" href="/subscribe/" aria-current={current.startsWith('/subscribe/') ? 'page' : undefined}>订阅</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索文章" title="搜索文章（Ctrl / ⌘ K）" aria-haspopup="dialog" aria-controls="site-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+      <button class="icon-button" type="button" data-theme-toggle aria-label="切换为深色模式" aria-pressed="false" title="切换为深色模式"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.8 13A8.7 8.7 0 0 1 11 3.2 8.8 8.8 0 1 0 20.8 13Z"/></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
+    </div>
+  </div>
+</header>
+<dialog id="site-search" class="search-dialog" aria-labelledby="search-title">
+  <div class="search-dialog-heading"><h2 id="search-title">搜索博客</h2><form method="dialog"><button class="icon-button" aria-label="关闭搜索" title="关闭搜索（Esc）">×</button></form></div>
+  <div class="search-input-wrap" role="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="search-input" type="search" placeholder="搜索文章标题或正文…" autocomplete="off" maxlength="80" aria-label="搜索关键词" aria-controls="search-results" aria-describedby="search-status" /></div>
+  <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
+  <ul id="search-results" class="search-results" aria-label="搜索结果"></ul>
+  <div class="search-hints"><span>支持关键词、部分字符和多个词组合</span><span>Esc 关闭</span></div>
+</dialog>
+<template id="search-index">{posts.map((post) => <article data-search-post data-date={formatDate(post.data.pubDate)}><a href={postUrl(post)}>{post.data.title}</a><p data-description>{post.data.description}</p><p data-body>{plainText(post.body)}</p></article>)}</template>
+<script is:inline set:html={clientScript} />
