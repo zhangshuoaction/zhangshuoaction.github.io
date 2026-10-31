@@ -1,184 +1,206 @@
-# Action Blog
+# 张硕Action · Action Blog
 
-基于 Astro 的中文静态博客，支持本地离线预览与 GitHub Pages 自动发布。
+使用 Astro 构建的个人静态博客。日常维护以 Markdown 文章和图片为主，列表、文章页、搜索索引、标签和 RSS 会在构建时一起更新。
 
-## 无服务预览（默认）
+- 网站：[zhangshuoaction.github.io](https://zhangshuoaction.github.io/)
+- 源码：[GitHub 仓库](https://github.com/zhangshuoaction/zhangshuoaction.github.io)
 
-双击根目录的 preview.html 或 start.cmd，直接打开 offline/index.html。无需启动服务，关闭终端、退出聊天或重启电脑后仍可打开。只要文件保留，本地入口就一直可用。
+## 1. 日常主要看哪里
 
-离线目录是上次构建的内容快照。修改文章或样式后，运行 npm run build:offline 重新生成。该命令完成后会退出，不会保持后台服务。阅读现成文件不需要安装 Node.js。移动或分享时请保留整个 offline 文件夹。
+| 内容 | 位置 |
+| --- | --- |
+| 文章与文章配图 | `src/content/blog/` |
+| 公共图片、站点图标 | `public/` |
+| 博客名称、描述、作者 | `src/consts.ts` |
+| 关于页介绍 | `src/pages/about.astro` |
+| 公众号名称、二维码 | `src/data/contacts.ts` |
+| 给 AI 的项目约定 | `AGENTS.md` |
 
-## 开发与更新
+`dist/` 是自动生成的网站，不需要手动编辑。写作时主要关注 `src/content/blog/`。
 
-需要 Node.js 22.23.4+（建议使用受 Astro 支持的偶数版本）与 npm。当前开发环境为 Node.js 24。
+## 2. 一篇文章一个文件夹
 
-```cmd
-cd /d D:\AI本地文件\action_blog
-npm install
-npm run dev
+正文文件名与文章文件夹名保持一致，文章和专属图片放在一起：
+
+```text
+src/content/blog/
+└─ my-first-post/
+   ├─ my-first-post.md
+   └─ images/
+      ├─ Pasted image 20261030160000.png
+      └─ Pasted image 20261030160100.png
 ```
 
-按终端实际输出的 Local 地址访问，默认 http://127.0.0.1:4321/。端口被占用时 Astro 会选择其他端口。
+`my-first-post/my-first-post.md` 对应网站地址 `/blog/my-first-post/`。网址由文件夹名决定，不会重复为 `/blog/my-first-post/my-first-post/`。
 
-```cmd
-npm run check
-npm run build
-npm run preview
-```
+文件夹名建议使用小写英文和短横线，文章中文标题写在正文顶部的 `title` 中。发布后尽量保持文件夹名稳定；迁移和改名时要检查旧链接。每个文章文件夹只放一篇 Markdown 正文。空的 `images/` 中可能有 `.gitkeep`，它用于让 Git 保留该目录，有图片后可以删除。
 
-构建产物位于 dist/；preview 用于查看构建后的静态网站。Ctrl+C 停止服务。
+### 新建文章
 
-## 第一版范围与验收
-
-- 默认入口显示博客列表，顶部导航与交互以文末最新规则为准。
-- 文章按日期倒序；详情有目录、代码高亮、阅读时长和相邻文章。
-- 标签和标签详情从公开文章自动生成，支持中文标签。
-- 关于页、404、移动端样式、键盘焦点与跳转正文入口。
-- 文章字段校验；草稿在详情路由、首页、列表、标签、RSS、Sitemap 中统一排除。
-- RSS、Sitemap、robots.txt、canonical、Open Graph 和文章结构化数据。
-- 四篇内容均为示例，页面有说明；另有一篇不公开的草稿用于展示规则。
-
-第一版开发顺序：基础配置 → 内容集合 → 页面与样式 → 类型和构建检查 → 路由、链接、草稿验证 → 本地浏览器检查。构建通过不代表已部署或人工验收。
-
-## 写一篇文章
-
-在 src/content/blog/ 下创建 my-first-post.md：
+1. 在 `src/content/blog/` 新建文件夹，例如 `my-first-post`。
+2. 在里面新建同名文件 `my-first-post.md`，复制下面的模板。
+3. 将配图放到该文章的 `images/`，完成后构建并检查页面。
 
 ```markdown
 ---
 title: "我的第一篇文章"
-description: "这篇文章讨论什么。"
+description: "用一句话说明文章在讨论什么。"
 pubDate: 2026-10-30
 tags: ["日常实践"]
 draft: false
 sample: false
-featured: false
 ---
 
 ## 从这里开始
 
 这里是正文。
+
+![截图说明](<./images/Pasted image 20261030160000.png>)
 ```
 
-- title、description、pubDate 必填，其余字段有默认值。
-- draft: true 的文章不进入公开页面；draft 默认 false。
-- sample: true 显示示例说明，正式文章设为 false 或省略。
-- featured: true 在首页优先显示；多个精选时选最新的一篇，没有精选时选最新文章。
-- pubDate 用于排序，不提供定时发布；即使日期在未来，只要 draft 为 false 就会公开。
-- 文件名形成文章 URL，发布后请保持稳定。
-- 正文从二级标题开始，二级和三级标题自动加入目录。
-- 文章专属截图推荐放在文章旁的 images/ 目录；公共图片放 public/images/。目录与引用示例见文末“文章图片与公共图片”。
-- 代码块写上语言名即可高亮。阅读时长按正文长度估算。
-- 删除示例文章后，它们会从所有派生页面中自动消失。
+模板中的图片行是写法示例，使用时换成真实文件，或先删除图片行。
 
-## 修改个人信息和样式
+| 字段 | 用途 |
+| --- | --- |
+| `title` | 必填，网站显示的文章标题 |
+| `description` | 必填，文章摘要 |
+| `pubDate` | 必填，发布日期，用于倒序排列 |
+| `updatedDate` | 可选，更新日期 |
+| `tags` | 可选，标签列表，默认空列表；兼容 Obsidian 的 # 前缀，网站读取时自动去掉前缀 |
+| `draft` | 默认 `false`；设为 `true` 时不发布 |
+| `sample` | 默认 `false`；设为 `true` 时显示示例文章提示 |
+| `featured` | 兼容保留字段；当前列表仍按日期排序 |
 
-- src/consts.ts：名称、描述和作者。
-- src/pages/about.astro：首页介绍以外的个人介绍文案。
-- src/components/BlogArchive.astro：默认博客列表。
-- src/styles/global.css：配色、字体、布局和响应式样式。
-- public/favicon.svg：站点图标。
+日期格式为 `YYYY-MM-DD`。未来日期不会自动隐藏文章，需要暂不公开时使用 `draft: true`。草稿不会出现在文章页、列表、搜索、标签、RSS 和 Sitemap 中。
 
-## GitHub Pages
+正文从二级标题 `##` 开始，二级与三级标题会生成文章目录。代码块注明语言即可高亮。示例内容可使用 sample: true 标记，正式文章保持 sample: false。
 
-仓库：https://github.com/zhangshuoaction/zhangshuoaction.github.io
+## 3. 用 Obsidian 维护
 
-网址：https://zhangshuoaction.github.io/
+在 Obsidian 中选择“打开文件夹作为仓库”，打开本机的 `D:\AI本地文件\action_blog\src\content\blog`。这样侧边栏主要显示文章和配图。
 
-推送 main 后自动执行 .github/workflows/deploy.yml，检查并构建 dist 后发布。也可在 GitHub Actions 手动运行工作流。Node.js 使用 24，依赖版本由 package-lock.json 锁定。
+打开“设置 → 文件与链接”，建议设置：
 
-astro.config.mjs 默认 site 为正式网址，RSS、Sitemap 和页面 canonical 使用该域名。SITE_URL 可通过进程环境变量覆盖，.env.example 仅作示例，不会被配置文件自动加载。
+- 新建笔记的存放位置：**当前文件所在的文件夹**。
+- 新附件的默认位置：**当前文件夹下的子文件夹**，子文件夹名填 `images`。
+- 新链接格式：**基于当前笔记的相对路径**。
+- 关闭 **使用双链 / Wikilinks**，使用标准 Markdown 链接和图片。
+- 开启 **自动更新内部链接**，在 Obsidian 内整理资源时便于同步修改引用。
 
-本仓库使用用户站点根路径，无需 /action_blog/ 前缀。以后改成项目子路径时，需要重新适配站内路径后再发布。
+选项名称可能因语言版本略有不同，含义见 [Obsidian 文件与链接设置](https://obsidian.md/help/settings) 和 [附件设置](https://obsidian.md/help/attachments)。
 
-npm run build:offline 继续生成无需服务的离线快照。截图、离线产物和依赖不提交到仓库。社交封面仍为 SVG，二维码按当前确认规则保留占位。
+每次新建文章，先创建文章文件夹和同名正文；之后粘贴截图，Obsidian 会将附件放入当前文章的 `images/`。
 
-## 已执行的验证（2026-10-30）
+图片文件名可以保留 `Pasted image ...png`。手写路径时使用下面的方式包裹空格：
 
-- Astro 类型检查：18 个文件，0 errors / 0 warnings / 0 hints。
-- 静态构建：13 个 HTML 页面。
-- 产物检查：281 个站内链接和锚点；RSS、Sitemap、草稿过滤、代码高亮和目录通过。
-- 本地 HTTP 检查：主要页面与 RSS / Sitemap / robots 返回 200；草稿和不存在的地址返回自定义 404。
-- 浏览器自动化工具启动超时，桌面与手机视觉效果尚待人工确认。
-- GitHub 同步、部署和正式内容验收尚未进行。
-
-后续可运行 npm run verify 重新执行类型、构建和产物检查。上面的数量对应初始示例内容，新增或删除文章后会变化。
-
-Windows 下双击 start.cmd 打开已有离线文件；需要自动刷新开发时，另行运行 npm run dev，按 Ctrl+C 停止开发服务。
-
-## 离线导出说明
-
-- npm run build:offline：正常构建 dist，然后生成独立的 offline 文件夹并检查 file 协议链接。
-- 页面、文章、中文标签、样式、图标和目录锚点使用可移动的相对文件路径，页面链接显式指向 index.html。
-- preview.html 是稳定入口，start.cmd 仅打开文件，不启动进程驻留的服务。
-- dist 继续保留标准网站产物，后续 GitHub 部署可以使用原来的构建流程。
-- 离线快照移除了面向网站的 canonical、OG URL / image 和结构化数据，正式网站仍保留 SEO 信息。
-- RSS 和 Sitemap 是静态 XML 快照，其站点地址保留构建时配置；正式 RSS 订阅在网站上线后使用。
-- 以后新增依赖模块脚本的交互时，离线导出会明确报错，需要另行适配 file 协议。
-
-### 离线验证（2026-10-30）
-
-已生成 13 个离线 HTML 页面，281 个 file 协议链接、资源和锚点检查通过；移动到含中文名称的临时目录后再次检查通过，临时目录已删除。标准网站产物检查也通过。未启动或驻留本地服务。
-
-## 顶部导航与交互（2026-10-30）
-
-本轮确认并实现：
-
-1. 顶部总高度为 60px，桌面与手机端一致。
-2. 去掉首页导航，默认入口显示博客列表；原“文章”导航改为“博客”，/blog/ 保持可访问。
-3. 去掉顶部标签导航；标签页面暂保留，后续由文章目录方案继续调整。
-4. 订阅进入 /subscribe/ 页面，含 RSS 地址、复制入口和其他平台预留区，尚未填入未提供的平台链接。
-5. 订阅右侧为搜索按钮，检索全部已发布文章的标题和正文；支持部分关键词、相邻顺序字符模糊匹配、多个词组合，不区分英文大小写，优先展示标题匹配，草稿排除。Ctrl/⌘+K 打开，Esc 关闭。
-6. 搜索右侧为深色模式开关；深色覆盖页面、弹窗、正文和代码高亮。保存选择，离线导航附带主题参数以兼容 file 协议的存储隔离。
-
-搜索索引和交互脚本均嵌入 HTML，不依赖网络请求或服务。修改内容后运行 npm run build:offline 即会同步更新离线索引。
-
-后续调整位置：src/components/Header.astro（导航）、src/components/BlogArchive.astro（博客列表）、src/pages/subscribe.astro（订阅与平台内容）、src/styles/navigation.css（导航/搜索/深色样式）、src/lib/search.mjs（搜索规则）。
-
-验收命令：npm run verify；npm run verify:navigation。浏览器脚本默认使用本机 Edge，可用 BLOG_BROWSER_PATH 指定其他 Chromium 浏览器。截图保留在 artifacts/navigation；测试临时浏览器目录会自动删除。
-
-本轮验证结果：26 个文件类型检查，0 errors / 0 warnings / 0 hints；14 个页面和 320 个离线链接/资源/锚点通过检查。真实 Edge 通过 file:// 打开并验证 60px 导航、默认博客、标题/正文搜索、模糊搜索、草稿排除、Esc 关闭、深色模式跨页保持、订阅 RSS 地址、代码深色配色，以及 375px / 320px 布局。页面无网络请求。浏览器截图已检查，临时浏览器配置已清理；产品人工确认仍由使用者完成。
-
-## 简化导航与页脚（2026-10-30）
-
-最新调整：订阅移到主导航，顺序为“博客、关于、订阅”；名称下方副标题移除。博客列表取消顶部英文标签、大标题和介绍，保留文章数量、排序与列表；仅为辅助技术保留不可见的页面主标题。全站页脚只保留居中的版权行“© 当前年份 Action Blog · Built with Astro”。右侧保留搜索和深色模式开关，导航高度仍为 60px。
-
-## 联系方式卡片（2026-10-30）
-
-订阅页标题为“你可以通过下面的方式找到我”，移除顶部英文和介绍。桌面两列、640px 以下单列。RSS 卡片仅保留圆角图标按钮、RSS订阅标题、地址框及复制按钮。微信公众号卡片展示圆角图标、名称“张硕Action”和明确的二维码占位，真实二维码待后续提供。其他平台介绍卡片已移除，后续可以在同一个网格中继续添加联系方式。
-
-公众号配置位于 src/data/contacts.ts，收到真实二维码后将图片放入 public/images/，再设置 wechat.qrcode 为对应 /images/ 路径。卡片样式位于 src/styles/subscribe.css。
-
-## 文章图片与公共图片（2026-10-30）
-
-推荐新增文章使用“一篇文章一个文件夹”，正文与专属截图一起管理：
-
-```text
-src/content/blog/
-  my-first-post/
-    index.md
-    images/
-      process.png
-      result.jpg
-public/images/
-  shared/
-    common-flow.png
+```markdown
+![截图说明](<./images/Pasted image 20261030160000.png>)
 ```
 
-- 文章专属截图：放在文章自己的 `images/` 目录，在 `index.md` 中写 `![流程截图](./images/process.png)`。
-- 跨文章复用的公共图片：放在 `public/images/shared/`，引用 `![公共流程图](/images/shared/common-flow.png)`；站点图标继续保留在 `public/`。
-- `index.md` 继续使用前面的文章字段模板。目录名形成文章地址，例如 `my-first-post/index.md` 对应 `/blog/my-first-post/`。
-- 旧的 `my-first-post.md` 写法仍支持；迁移时移动为 `my-first-post/index.md`，不要同时保留这两份正文，以免文章地址重复。
-- 正文使用 Markdown 图片语法和相对路径；无需手动把文章截图复制到 `public/`、`dist/` 或 `offline/`。
-- 新增或修改文章、截图后，运行 `npm run build:offline` 更新离线预览。构建会处理本地图片，并将资源带入离线目录。
-- 整理或迁移文章时，把文章文件夹整体移动，同时更新受影响的图片引用。
+Obsidian 自动生成的 `%20` 空格编码路径也可以使用。构建会处理文章相对路径图片，不需要将截图另外复制到 `public/` 或 `dist/`。跨文章复用的图片可放到 `public/images/`，在网站中引用 `/images/文件名.png`。
 
-## GitHub Pages 发布配置（2026-10-30）
+本项目使用标准 Markdown，没有加入 Obsidian 的 `![[图片]]`、`[[双链]]` 或笔记嵌入转换。Obsidian 中保存文件只会更新源码，网站要在构建或开发服务刷新后才更新。
 
-目标仓库：https://github.com/zhangshuoaction/zhangshuoaction.github.io ，正式网址：https://zhangshuoaction.github.io/ 。推送 main 或手动触发工作流后，由 GitHub Actions 使用 Node.js 24 构建并发布 dist；本地 offline、依赖、截图和临时浏览器目录不上传。
+Obsidian 的本机设置目录 `.obsidian/` 与废纸篓 `.trash/` 已忽略，不会提交到 GitHub。
 
-astro.config.mjs 的默认 site 已改为正式网址，RSS、Sitemap、canonical 和 robots 使用正式地址；保留 SITE_URL 环境变量覆盖。离线预览入口和生成方式保持可用。
+## 4. 本地查看网站
 
-工作流会检查类型、静态页面链接和生产元信息，再将产物部署到 github-pages 环境。微信公众号二维码目前仍是明确的占位，示例文章仍按示例标注。
+需要 Node.js 22.23.4 或更新的受支持版本，当前项目使用 Node.js 24 和 npm。以下命令在 Windows CMD 中运行。
 
-发布配置不等于部署成功。实际结果以 Actions 部署状态和正式网址检查为准。
+首次使用先安装依赖：
+
+```cmd
+cd /d "D:\AI本地文件\action_blog"
+npm ci
+```
+
+写作时想即时查看网页：
+
+```cmd
+cd /d "D:\AI本地文件\action_blog"
+npm run dev
+```
+
+查看正式构建结果：
+
+```cmd
+cd /d "D:\AI本地文件\action_blog"
+npm run build
+npm run preview
+```
+
+打开终端显示的 Local 网址，通常是 [http://127.0.0.1:4321/](http://127.0.0.1:4321/)。保持终端运行，结束时按 `Ctrl+C`。
+
+构建只生成一个 `dist/`。修改文章或样式后重新构建，才能更新这个目录。直接通过 `file://` 双击其中的 HTML 可能丢失样式或无法跳转，请使用上述 HTTP 网址查看完整效果。
+
+## 5. 发布到 GitHub Pages
+
+本地保存、构建和线上发布是三个独立动作。将源文件提交并推送到 GitHub 的 `main` 后，GitHub Actions 会自动检查、构建并发布网站；只修改本地文件不会更新线上网站。
+
+在仓库的 [Actions](https://github.com/zhangshuoaction/zhangshuoaction.github.io/actions) 中查看发布结果。部署使用 `dist/`，无需手工上传这个目录；依赖、构建产物和浏览器测试截图（artifacts/）均不提交到源码仓库；文章配图和站点公共图片需要提交。
+
+正式域名在 `astro.config.mjs` 中配置；目前使用用户站点根路径，不需要额外的项目路径前缀。
+
+## 6. 页面与联系方式
+
+博客已包含文章列表与详情、目录、代码高亮、标题和正文搜索（命中高亮）、深浅色模式（深色背景 #3C3C3C）、阅读进度及回顶部、标签、关于、订阅、RSS 和 Sitemap。顶部导航滚动时保持可见，文章目录以竖线表示层级，详情页提供“返回”按钮及 50px 的回顶部按钮。
+
+博客目录每页显示 10 篇，超过 10 篇自动生成底部分页。桌面左侧标签按公开文章数倒序排列，选择标签进入筛选结果，“全部博客”切回全部文章；切换标签从第 1 页开始，手机端标签位于列表上方。文章列表依次显示标题、完整日期与标签、简介，不展示阅读时长。分页和标签页均在构建时生成，无需额外服务或接口。亮色主题采用中性灰白与深灰文字，绿色用于 hover 和焦点反馈。
+
+公众号当前名称为“张硕Action”，二维码为明确的占位。以后将真实二维码放入 `public/images/`，再将 `src/data/contacts.ts` 中的 `wechat.qrcode` 设置为 `/images/实际文件名.png`。
+
+界面调整主要涉及 `src/components/`、`src/layouts/`、`src/styles/` 和 `src/scripts/`；路由和独立页面在 `src/pages/`。
+
+## 7. 检查与其他目录
+
+| 命令 | 作用 |
+| --- | --- |
+| `npm run check` | 检查类型与文章字段 |
+| `npm run verify` | 类型检查、构建、文章网址与链接检查、草稿和订阅检查 |
+| `node scripts/verify-production.mjs` | 检查正式域名、RSS、Sitemap 和页面元信息 |
+| `npm run verify:navigation` | 构建后用本机 Edge 检查搜索、主题和移动端交互 |
+
+浏览器检查会临时启动本机 HTTP 服务，结束后关闭并清理临时浏览器目录；截图保存在 `artifacts/navigation/`。可用 `BLOG_BROWSER_PATH` 指定其他 Chromium 浏览器路径。
+
+`scripts/` 保存检查脚本，`.github/` 保存部署流程，`.astro/` 是 Astro 自动生成的数据，`node_modules/` 是安装的依赖，`artifacts/` 是本机验证记录。这些目录日常写作无需操作。
+
+
+## 8. 完整目录用途与 GitHub 标记
+
+标记说明：**上传**表示应提交到 GitHub 源码仓库；**仅本地**表示不提交。文章正文和配图属于源码，网站由 GitHub Actions 另行构建和发布。
+
+| 目录或文件 | 用途 | GitHub 标记 |
+| --- | --- | --- |
+| src/ | 网站源代码，包含下面各子目录 | 上传 |
+| src/content/blog/ | 文章正文；每篇文章的 images/ 保存专属截图和配图 | 上传，正文和图片一起提交 |
+| src/components/ | 导航、文章卡片、阅读进度等组件 | 上传 |
+| src/layouts/ | 页面公共布局和元信息 | 上传 |
+| src/pages/ | 文章、关于、订阅、标签等页面及 RSS、robots 入口 | 上传 |
+| src/styles/ | 配色、排版、响应式样式 | 上传 |
+| src/scripts/ | 搜索、主题和阅读进度等浏览器交互 | 上传 |
+| src/lib/ | 文章网址、筛选、标签和搜索等公共逻辑 | 上传 |
+| src/data/ | 联系方式等站点数据 | 上传 |
+| src/consts.ts、src/content.config.ts | 站点信息和文章字段、加载规则 | 上传 |
+| public/ | 图标、社交封面、二维码、公共图片及 .nojekyll 等原样发布资源 | 上传 |
+| scripts/ | 构建结果、导航与生产配置的检查脚本 | 上传 |
+| .github/workflows/ | GitHub Pages 自动检查、构建和发布流程 | 上传 |
+| README.md | 给使用者的写作、Obsidian、预览和发布说明 | 上传 |
+| AGENTS.md | 给 AI 的项目协作约定 | 上传 |
+| .gitignore | 全项目共用的 Git 忽略规则 | 上传 |
+| package.json、package-lock.json | 项目命令、依赖和版本锁定 | 上传 |
+| astro.config.mjs、tsconfig.json | Astro 和 TypeScript 配置 | 上传 |
+| .env.example | 不含真实密钥的环境变量示例 | 上传 |
+| node_modules/ | 安装生成的依赖 | 仅本地，已忽略 |
+| dist/ | 构建生成的网站；Actions 将其作为站点产物发布 | 仅本地构建产物，不提交源码 |
+| .astro/ | Astro 自动生成的数据、缓存和类型 | 仅本地，已忽略 |
+| artifacts/ | 浏览器测试截图、部署检查记录等验证证据 | 仅本地，已忽略 |
+| .obsidian/、.trash/、.claudian/（任意层级） | Obsidian 配置、回收站及本机 AI 插件设置，使用后才会出现 | 仅本地，已忽略 |
+| .env、其他 .env.*（除 .env.example） | 本机环境变量和私密配置 | 仅本地，已忽略 |
+| .tools/、.browser-check-*/、*.log | 本机辅助工具、临时浏览器目录和日志 | 仅本地，已忽略 |
+| .git/ | 本机 Git 历史、索引和仓库元数据 | 仅本地，由 Git 自身管理 |
+
+- **文章截图需要上传，浏览器测试截图不上传。** 前者在文章的 images/ 中，后者在 artifacts/ 中。
+- **draft: true 不代表仅本地。** 它只阻止生成公开博客页面，源文件仍会随 Git 提交进入 GitHub；公开仓库中仍可看到源码。私密草稿应存放在仓库外。
+- README.md 和 AGENTS.md 需要上传，但不会自动成为博客文章。其他仅供本机使用的 Markdown 笔记不要放入 src/content/blog/，该目录会将 Markdown 当文章校验和加载。
+- .gitkeep 是保留空目录的占位文件，可以上传；文章 images/ 中有真实图片后可删除。
+- 以上标记由 .gitignore 配合目录约定执行，不需要重命名目录。已被 Git 跟踪的文件不会因为新增忽略规则而自动停止跟踪。

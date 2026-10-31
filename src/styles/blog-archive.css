@@ -1,0 +1,47 @@
+.blog-list-page { padding-top: 36px; padding-bottom: 56px; min-height: calc(100vh - 129px); }
+.blog-browser { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 48px; align-items: start; }
+.blog-sidebar { position: sticky; top: 88px; max-height: calc(100vh - 116px); overflow-y: auto; min-width: 0; }
+.blog-sidebar h2 { margin: 0 12px 14px; font-size: 12px; font-weight: 550; color: var(--muted); }
+.blog-tag-list { display: flex; flex-direction: column; gap: 6px; }
+.blog-tag-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 11px 12px; border: 1px solid transparent; border-radius: 6px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.blog-tag-name { min-width: 0; overflow-wrap: anywhere; }
+.blog-tag-count { flex-shrink: 0; font-size: 11px; font-variant-numeric: tabular-nums; }
+.blog-tag-list a[aria-current=page] { color: var(--ink); background: var(--pale); border-color: var(--line); font-weight: 600; }
+.blog-tag-list a:hover { color: var(--interactive); background: var(--hover-bg); }
+.blog-results { min-width: 0; }
+.blog-list-summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.blog-list-summary h2 { min-width: 0; overflow-wrap: anywhere; font-size: 16px; font-weight: 600; line-height: 1.6; }
+.blog-list-summary p { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.blog-list-page .archive-item, .blog-list-page .archive-item:first-child { display: block; padding: 26px 0 28px; border-bottom: 1px solid var(--line); }
+.blog-list-page .archive-copy h2 { margin: 0; color: var(--ink); font-size: 22px; font-weight: 600; line-height: 1.65; overflow-wrap: anywhere; }
+.blog-list-page .archive-copy h2 a:hover { color: var(--interactive); }
+.archive-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 10px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.archive-meta time { font-variant-numeric: tabular-nums; }
+.blog-list-page .inline-tags { color: var(--tag); font-size: 14px; gap: 10px; }
+.blog-list-page .inline-tags a:hover { color: var(--tag-hover); }
+.blog-list-page .archive-copy .archive-description { margin: 13px 0 0; color: var(--muted); font-size: 16px; line-height: 1.9; overflow-wrap: anywhere; }
+.blog-pagination { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 30px; }
+.blog-pagination a, .blog-pagination > span { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; font-size: 12px; }
+.blog-pagination .pagination-current { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.blog-pagination a:hover { color: var(--interactive); background: var(--hover-bg); border-color: var(--interactive); }
+.blog-pagination .pagination-disabled { color: var(--muted); opacity: .55; }
+@media (max-width: 900px) {
+  .blog-browser { grid-template-columns: 160px minmax(0, 1fr); gap: 30px; }
+}
+@media (max-width: 760px) {
+  .blog-list-page { padding-top: 24px; padding-bottom: 40px; }
+  .blog-browser { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .blog-sidebar { position: static; max-height: none; overflow: visible; }
+  .blog-sidebar h2 { margin-left: 0; margin-bottom: 10px; }
+  .blog-tag-list { flex-direction: row; gap: 8px; max-width: 100%; overflow-x: auto; padding: 2px 2px 8px; }
+  .blog-tag-list a { flex-shrink: 0; white-space: nowrap; padding: 8px 11px; gap: 10px; background: var(--paper); border-color: var(--line); font-size: 12px; }
+  .blog-tag-name { overflow-wrap: normal; }
+  .blog-list-summary { display: block; padding-bottom: 15px; }
+  .blog-list-summary h2 { margin-bottom: 7px; }
+  .blog-list-summary p { justify-content: space-between; }
+  .blog-list-page .archive-copy h2 { font-size: 20px; }
+  .blog-list-page .archive-item, .blog-list-page .archive-item:first-child { padding: 23px 0 25px; }
+  .archive-meta { gap: 5px 12px; }
+  .blog-list-page .archive-copy .archive-description { font-size: 16px; }
+  .blog-pagination { gap: 6px; }
+}

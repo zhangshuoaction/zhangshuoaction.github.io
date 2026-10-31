@@ -8,9 +8,13 @@ dist/
 .DS_Store
 Thumbs.db
 
-/offline/
-
 /artifacts/
 /.browser-check-*/
-/.offline-check-*/
 /.tools/
+
+# Obsidian local settings and trash (at any depth)
+.obsidian/
+.trash/
+
+# Local AI plugin settings
+.claudian/

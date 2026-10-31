@@ -1,0 +1,14 @@
+---
+import BlogArchive from '../../../../components/BlogArchive.astro';
+import { getPublishedPosts, getTags } from '../../../../lib/posts';
+import { blogExtraPages } from '../../../../lib/pagination.mjs';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return getTags(posts).flatMap(({ name, count }) => blogExtraPages(count).map((page) => ({
+    params: { tag: name, page: String(page) }, props: { tag: name, page },
+  })));
+}
+const { tag, page } = Astro.props;
+---
+<BlogArchive tag={tag} page={page} />

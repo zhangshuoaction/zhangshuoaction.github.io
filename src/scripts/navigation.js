@@ -14,18 +14,6 @@ const articles = [...template.content.querySelectorAll('[data-search-post]')].ma
   date: item.dataset.date,
 }));
 
-// file: localStorage can be isolated per file. Carry the preference in page links as well.
-function syncThemeLinks(scope = document) {
-  if (location.protocol !== 'file:') return;
-  for (const link of scope.querySelectorAll('a[href]')) {
-    const href = link.getAttribute('href');
-    if (!href || href.startsWith('#')) continue;
-    const url = new URL(href, location.href);
-    if (url.protocol !== 'file:' || !/\.html?$/i.test(url.pathname)) continue;
-    url.searchParams.set('theme', root.dataset.theme);
-    link.href = url.href;
-  }
-}
 function updateThemeButton() {
   const dark = root.dataset.theme === 'dark';
   const label = dark ? '切换为浅色模式' : '切换为深色模式';
@@ -37,21 +25,30 @@ themeButton.addEventListener('click', () => {
   root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
   root.style.colorScheme = root.dataset.theme;
   try { localStorage.setItem('action-blog-theme', root.dataset.theme); } catch {}
-  if (location.protocol === 'file:') {
-    const url = new URL(location.href);
-    url.searchParams.set('theme', root.dataset.theme);
-    try { history.replaceState(null, '', url); } catch {}
-  }
   updateThemeButton();
-  syncThemeLinks();
 });
 updateThemeButton();
-syncThemeLinks();
 
 function showSearch() {
   if (!dialog.open) dialog.showModal();
   input.focus();
 }
+function appendHighlightedText(target, value, query) {
+  const source = String(value || '');
+  const fragment = document.createDocumentFragment();
+  let cursor = 0;
+  for (const { start, end } of getHighlightRanges(source, query)) {
+    if (start > cursor) fragment.append(document.createTextNode(source.slice(cursor, start)));
+    const mark = document.createElement('mark');
+    mark.className = 'search-highlight';
+    mark.textContent = source.slice(start, end);
+    fragment.append(mark);
+    cursor = end;
+  }
+  if (cursor < source.length) fragment.append(document.createTextNode(source.slice(cursor)));
+  target.replaceChildren(fragment);
+}
+
 function renderResults() {
   resultsList.replaceChildren();
   const query = input.value.trim();
@@ -66,9 +63,9 @@ function renderResults() {
     const link = document.createElement('a');
     link.href = result.url;
     const title = document.createElement('h3');
-    title.textContent = result.title;
+    appendHighlightedText(title, result.title, query);
     const snippet = document.createElement('p');
-    snippet.textContent = result.snippet;
+    appendHighlightedText(snippet, result.snippet, query);
     const meta = document.createElement('span');
     meta.className = 'search-result-meta';
     meta.textContent = result.date + ' · ' + (result.titleMatch ? '标题匹配' : '正文匹配');
@@ -76,7 +73,6 @@ function renderResults() {
     item.append(link);
     resultsList.append(item);
   }
-  syncThemeLinks(resultsList);
 }
 searchButton.addEventListener('click', showSearch);
 dialog.addEventListener('close', () => searchButton.focus());

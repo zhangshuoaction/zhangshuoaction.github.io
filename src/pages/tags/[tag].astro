@@ -1,11 +1,10 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
+import BlogArchive from '../../components/BlogArchive.astro';
 import { getPublishedPosts, getTags } from '../../lib/posts';
+
 export async function getStaticPaths() {
-  const posts = await getPublishedPosts();
-  return getTags(posts).map(({ name }) => ({ params: { tag: name }, props: { tag: name, posts: posts.filter((post) => post.data.tags.includes(name)) } }));
+  return getTags(await getPublishedPosts()).map(({ name }) => ({ params: { tag: name }, props: { tag: name } }));
 }
-const { tag, posts } = Astro.props;
+const { tag } = Astro.props;
 ---
-<BaseLayout title={'标签：' + tag} description={'阅读 Action Blog 中与「' + tag + '」有关的文章。'}><div class="container page-shell"><a class="back-link" href="/tags/">← 全部标签</a><div class="page-heading"><div class="eyebrow">TOPIC COLLECTION</div><h1><span class="muted-title">#</span> {tag}</h1><p>关于这个主题的 {posts.length} 篇记录。</p></div><div class="card-grid">{posts.map((post, index) => <PostCard post={post} index={index} />)}</div></div></BaseLayout>
+<BlogArchive tag={tag} />

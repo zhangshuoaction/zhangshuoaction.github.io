@@ -1,14 +1,50 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedPosts, formatDate, postUrl, tagUrl, readingTime } from '../lib/posts';
+import { getPublishedPosts, getTags, formatDate, postUrl, tagUrl } from '../lib/posts';
+import { BLOG_PAGE_SIZE, blogPageCount, blogPageUrl } from '../lib/pagination.mjs';
+import '../styles/blog-archive.css';
+
+interface Props { tag?: string; page?: number; }
+const { tag, page = 1 } = Astro.props;
 const posts = await getPublishedPosts();
-const years = [...new Set(posts.map((p) => p.data.pubDate.getUTCFullYear()))];
+const tags = getTags(posts);
+const filtered = tag ? posts.filter((post) => post.data.tags.includes(tag)) : posts;
+const totalPages = blogPageCount(filtered.length);
+const visible = filtered.slice((page - 1) * BLOG_PAGE_SIZE, page * BLOG_PAGE_SIZE);
+const title = tag ? '标签：' + tag : '博客';
 ---
-<BaseLayout title="博客" description="Action Blog 的全部文章：产品思考、技术笔记与日常实践。">
-  <div class="container page-shell blog-list-page">
-    <h1 class="sr-only">博客</h1>
-    <div class="page-total">共 {posts.length} 篇文章<span>按发布时间倒序</span></div>
-    {years.map((year) => <section class="archive-group" aria-label={year + ' 年文章'}><div class="archive-year">{year}<span> /</span></div><div class="archive-items">{posts.filter((p) => p.data.pubDate.getUTCFullYear() === year).map((post) => <article class="archive-item"><div class="archive-date"><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate).slice(5)}</time><span>{readingTime(post.body)} 分钟阅读</span></div><div class="archive-copy"><div class="inline-tags">{post.data.tags.map((tag) => <a href={tagUrl(tag)}># {tag}</a>)}{post.data.sample && <span class="sample-label">示例文章</span>}</div><h2><a href={postUrl(post)}>{post.data.title}</a></h2><p>{post.data.description}</p></div><a class="archive-arrow" href={postUrl(post)} aria-label={'阅读：' + post.data.title}>↗</a></article>)}</div></section>)}
-    {posts.length === 0 && <p class="empty-state">第一篇文章正在路上。</p>}
+<BaseLayout title={page > 1 ? title + ' · 第 ' + page + ' 页' : title} description={tag ? '按标签「' + tag + '」浏览博客文章。' : '按主题浏览博客文章，记录产品、技术与日常实践。'}>
+  <div class="container page-shell blog-list-page" data-blog-archive data-page={page} data-total-pages={totalPages} data-post-count={filtered.length} data-active-tag={tag || ''}>
+    <h1 class="sr-only">{tag ? '博客：' + tag : '博客'}</h1>
+    <div class="blog-browser">
+      <aside class="blog-sidebar" aria-labelledby="blog-tags-title">
+        <h2 id="blog-tags-title">标签</h2>
+        <nav class="blog-tag-list" aria-label="博客标签">
+          <a href={blogPageUrl()} data-blog-tag="" aria-current={!tag ? 'page' : undefined}><span>全部博客</span><span class="blog-tag-count">{posts.length}</span></a>
+          {tags.map(({ name, count }) => <a href={tagUrl(name)} data-blog-tag={name} aria-current={tag === name ? 'page' : undefined}><span class="blog-tag-name"># {name}</span><span class="blog-tag-count">{count}</span></a>)}
+        </nav>
+      </aside>
+      <section class="blog-results" aria-labelledby="blog-results-title">
+        <header class="blog-list-summary">
+          <h2 id="blog-results-title">{tag ? '# ' + tag : '全部博客'}</h2>
+          <p><span>共 {filtered.length} 篇文章</span><span>按发布时间倒序</span></p>
+        </header>
+        <div class="archive-items">
+          {visible.map((post) => <article class="archive-item" data-post-id={post.id}>
+            <div class="archive-copy">
+              <h2><a href={postUrl(post)}>{post.data.title}</a></h2>
+              <div class="archive-meta"><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time><div class="inline-tags">{post.data.tags.map((name) => <a href={tagUrl(name)}># {name}</a>)}</div>{post.data.sample && <span class="sample-label">示例文章</span>}</div>
+              <p class="archive-description">{post.data.description}</p>
+            </div>
+          </article>)}
+        </div>
+        {filtered.length === 0 && <p class="empty-state">第一篇文章正在路上。</p>}
+        {totalPages > 1 && <nav class="blog-pagination" aria-label="文章分页">
+          {page > 1 ? <a href={blogPageUrl(page - 1, tag)} rel="prev" aria-label="上一页">上一页</a> : <span class="pagination-disabled" aria-disabled="true">上一页</span>}
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => number === page ? <span class="pagination-current" aria-current="page" aria-label={'第 ' + number + ' 页'}>{number}</span> : <a href={blogPageUrl(number, tag)} aria-label={'第 ' + number + ' 页'}>{number}</a>)}
+          {page < totalPages ? <a href={blogPageUrl(page + 1, tag)} rel="next" aria-label="下一页">下一页</a> : <span class="pagination-disabled" aria-disabled="true">下一页</span>}
+        </nav>}
+      </section>
+    </div>
   </div>
 </BaseLayout>

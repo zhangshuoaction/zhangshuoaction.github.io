@@ -1,0 +1,33 @@
+.reading-progress {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 10;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 4px 20px #00000014;
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .18s, border-color .18s;
+}
+.reading-progress[hidden] { display: none; }
+.reading-progress-value { font-size: 12px; font-variant-numeric: tabular-nums; }
+.reading-progress-action { display: none; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; line-height: 1.4; }
+.reading-progress-action svg { width: 20px; height: 20px; }
+.reading-progress:hover, .reading-progress:focus-visible { background: var(--pale); border-color: var(--muted); }
+.reading-progress:hover .reading-progress-value, .reading-progress:focus-visible .reading-progress-value { display: none; }
+.reading-progress:hover .reading-progress-action, .reading-progress:focus-visible .reading-progress-action { display: flex; }
+.reading-progress:focus-visible { border-radius: 50%; }
+@media (max-width: 760px) {
+  .reading-progress { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress { transition: none; }
+}

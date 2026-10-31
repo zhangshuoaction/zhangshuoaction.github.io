@@ -1,8 +1,9 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
 import { SITE_AUTHOR } from '../../consts';
-import { getPublishedPosts, formatDate, postUrl, tagUrl, readingTime } from '../../lib/posts';
+import { getPublishedPosts, formatDate, postUrl, tagUrl } from '../../lib/posts';
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
   return posts.map((post, index) => ({ params: { slug: post.id }, props: { post, newer: posts[index - 1], older: posts[index + 1] } }));
@@ -10,9 +11,24 @@ export async function getStaticPaths() {
 const { post, newer, older } = Astro.props;
 const { Content, headings } = await render(post);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const tocSections: { heading: (typeof toc)[number]; children: typeof toc }[] = [];
+for (const heading of toc) {
+  const parent = tocSections[tocSections.length - 1];
+  if (heading.depth === 3 && parent?.heading.depth === 2) parent.children.push(heading);
+  else tocSections.push({ heading, children: [] });
+}
 const structuredData = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.data.title, description: post.data.description, datePublished: post.data.pubDate.toISOString(), dateModified: (post.data.updatedDate || post.data.pubDate).toISOString(), author: { '@type': 'Person', name: SITE_AUTHOR }, mainEntityOfPage: new URL(postUrl(post), Astro.site).href };
 ---
 <BaseLayout title={post.data.title} description={post.data.description} article pubDate={post.data.pubDate} updatedDate={post.data.updatedDate}>
   <script type="application/ld+json" set:html={JSON.stringify(structuredData).replaceAll('<', '\\u003c')} />
-  <div class="container article-shell"><a class="back-link" href="/blog/">← 全部文章</a><header class="article-header"><div class="inline-tags">{post.data.tags.map((tag) => <a href={tagUrl(tag)}># {tag}</a>)}</div><h1>{post.data.title}</h1><p class="article-description">{post.data.description}</p><div class="article-meta"><span class="author-avatar" aria-hidden="true">A</span><span>{SITE_AUTHOR}</span><span class="meta-dot">/</span><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time><span class="meta-dot">·</span><span>约 {readingTime(post.body)} 分钟</span>{post.data.updatedDate && <span>更新于 {formatDate(post.data.updatedDate)}</span>}</div></header><div class="article-layout"><div class="article-main">{post.data.sample && <aside class="sample-notice"><span aria-hidden="true">✳</span><div><strong>这是一篇示例文章</strong><p>用于展示博客的排版和内容结构，可直接替换为你的正式文章。</p></div></aside>}<article class="prose"><Content /></article><div class="article-end"><span>END OF NOTE</span><span aria-hidden="true">✳</span><p>感谢阅读，下一篇见。</p></div><nav class="post-pagination" aria-label="相邻文章">{newer ? <a href={postUrl(newer)}><span>← 较新一篇</span><strong>{newer.data.title}</strong></a> : <div></div>}{older ? <a href={postUrl(older)}><span>较早一篇 →</span><strong>{older.data.title}</strong></a> : <div></div>}</nav></div>{toc.length > 0 && <aside class="toc"><nav aria-label="文章目录"><span class="eyebrow">ON THIS PAGE</span><h2>文章目录</h2><ol>{toc.map(({ depth, slug, text }) => <li class:list={{ nested: depth === 3 }}><a href={'#' + slug}>{text}</a></li>)}</ol><a class="back-top" href="#main">回到顶部 ↑</a></nav></aside>}</div></div>
+  <div class="container article-shell"><a class="back-link" href="/blog/" aria-label="返回博客列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg><span>返回</span></a><header class="article-header">
+    <h1>{post.data.title}</h1>
+    <div class="article-meta">
+      <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+      <div class="inline-tags">{post.data.tags.map((tag) => <a href={tagUrl(tag)}># {tag}</a>)}</div>
+      {post.data.updatedDate && <span>更新于 {formatDate(post.data.updatedDate)}</span>}
+    </div>
+    <p class="article-description">{post.data.description}</p>
+  </header><div class="article-layout"><div class="article-main">{post.data.sample && <aside class="sample-notice"><span aria-hidden="true">✳</span><div><strong>这是一篇示例文章</strong><p>用于展示博客的排版和内容结构，可直接替换为你的正式文章。</p></div></aside>}<article class="prose"><Content /></article><div class="article-end"><span>END OF NOTE</span><span aria-hidden="true">✳</span><p>感谢阅读，下一篇见。</p></div><nav class="post-pagination" aria-label="相邻文章">{newer ? <a href={postUrl(newer)}><span>← 较新一篇</span><strong>{newer.data.title}</strong></a> : <div></div>}{older ? <a href={postUrl(older)}><span>较早一篇 →</span><strong>{older.data.title}</strong></a> : <div></div>}</nav></div>{toc.length > 0 && <aside class="toc"><nav aria-label="文章目录"><h2>文章目录</h2><ol>{tocSections.map(({ heading, children }) => <li><a href={'#' + heading.slug}>{heading.text}</a>{children.length > 0 && <ol>{children.map(({ slug, text }) => <li class="nested"><a href={'#' + slug}>{text}</a></li>)}</ol>}</li>)}</ol></nav></aside>}</div></div>
+  <ReadingProgress />
 </BaseLayout>

@@ -7,9 +7,10 @@
 .contact-card-heading h2 { margin: 0; font-size: 19px; font-weight: 550; line-height: 1.6; }
 .contact-icon { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid transparent; border-radius: 12px; }
 .contact-icon svg { width: 25px; height: 25px; }
-.contact-icon-rss { color: #b7772b; background: #f7ead7; border-color: #ecd6b7; transition: background .18s; }
-.contact-icon-rss:hover { background: #f0dfc2; }
-.contact-icon-wechat { color: #368951; background: #e5f0e4; border-color: #cde2ce; }
+.contact-icon-rss { color: #f26522; background: #fff0e5; border-color: #f5d2bb; transition: background .18s; }
+.contact-icon-rss:hover { color: #d95717; background: #ffe1cc; }
+/* WeChat brand green: Tencent WeUI --weui-BRAND (#07c160). */
+.contact-icon-wechat { color: #ffffff; background: #07c160; border-color: #07c160; }
 .contact-icon-wechat svg { width: 30px; height: 30px; }
 .rss-address-row { display: flex; gap: 10px; margin-top: 26px; }
 .rss-address-row input { flex: 1; width: 100%; min-width: 0; font: 12px/1.7 Consolas, monospace; padding: 11px 13px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); }
@@ -20,9 +21,8 @@
 .qr-placeholder { width: 160px; height: 160px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 1px dashed var(--line); border-radius: 6px; background: var(--bg); color: var(--muted); }
 .qr-placeholder svg { width: 43px; height: 43px; opacity: .7; }
 .qr-placeholder span { font-size: 11px; }
-[data-theme=dark] .contact-icon-rss { color: #efbc78; background: #3f3121; border-color: #674c2b; }
-[data-theme=dark] .contact-icon-rss:hover { background: #503a22; }
-[data-theme=dark] .contact-icon-wechat { color: #91c89c; background: #263d2c; border-color: #3c5b41; }
+[data-theme=dark] .contact-icon-rss { color: #ff9b60; background: #544335; border-color: #8d6043; }
+[data-theme=dark] .contact-icon-rss:hover { color: #ffb784; background: #634b38; }
 @media(max-width: 760px) {
   .subscribe-page { padding-top: 32px; }
   .contact-page-heading { margin-bottom: 24px; }

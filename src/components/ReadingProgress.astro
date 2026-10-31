@@ -1,0 +1,12 @@
+---
+import readingProgress from '../scripts/reading-progress.js?raw';
+import '../styles/reading-progress.css';
+---
+<button class="reading-progress" type="button" data-reading-progress hidden aria-label="回顶部">
+  <span class="reading-progress-value" data-reading-progress-value aria-hidden="true">0%</span>
+  <span class="reading-progress-action" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
+    <span>回顶部</span>
+  </span>
+</button>
+<script is:inline set:html={readingProgress} />
