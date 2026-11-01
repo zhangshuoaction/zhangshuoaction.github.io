@@ -21,8 +21,8 @@ const rssUrl = new URL('/rss.xml', Astro.site).href;
           <h2 id="wechat-title">微信公众号</h2>
         </div>
         <div class="wechat-content">
-          <p class="wechat-name">{wechat.name}</p>
-          {wechat.qrcode ? <img class="wechat-qrcode" src={wechat.qrcode} alt={wechat.name + '微信公众号二维码'} width="160" height="160" loading="lazy" /> :
+          <div class="wechat-text"><p class="wechat-name">{wechat.name}</p><p class="wechat-description">{wechat.description}</p></div>
+          {wechat.qrcode ? <img class="wechat-qrcode" src={wechat.qrcode} alt={wechat.name + '微信公众号二维码'} width="200" height="200" loading="lazy" /> :
             <div class="qr-placeholder" role="img" aria-label="公众号二维码占位，待补充">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17V7h10m14 0h10v10M7 31v10h10m14 0h10V31"/></svg>
               <span>二维码待补充</span>

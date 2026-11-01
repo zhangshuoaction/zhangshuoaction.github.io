@@ -147,7 +147,7 @@ npm run preview
 
 博客目录每页显示 10 篇，超过 10 篇自动生成底部分页。桌面左侧标签按公开文章数倒序排列，选择标签进入筛选结果，“全部博客”切回全部文章；切换标签从第 1 页开始，手机端标签位于列表上方。文章列表依次显示标题、完整日期与标签、简介，不展示阅读时长。分页和标签页均在构建时生成，无需额外服务或接口。亮色主题采用中性灰白与深灰文字，绿色用于 hover 和焦点反馈。
 
-公众号当前名称为“张硕Action”，二维码为明确的占位。以后将真实二维码放入 `public/images/`，再将 `src/data/contacts.ts` 中的 `wechat.qrcode` 设置为 `/images/实际文件名.png`。
+公众号名称为“张硕Action”，简介为“这个人很懒，公众号并没有什么文章。”。名称、简介和二维码路径在 src/data/contacts.ts 中维护；二维码原图保存在 public/images/wechat-qrcode.jpg。替换时直接更新图片或配置中的路径，并重新构建。手机端名称与简介显示在二维码上方。
 
 界面调整主要涉及 `src/components/`、`src/layouts/`、`src/styles/` 和 `src/scripts/`；路由和独立页面在 `src/pages/`。
 

@@ -24,7 +24,7 @@
 
 - src/components/、src/layouts/：共享界面与布局；src/pages/：页面路由及 RSS、robots。
 - src/styles/、src/scripts/：样式与浏览器交互；src/lib/：文章与搜索等公共逻辑。
-- src/consts.ts：站点信息；src/data/contacts.ts：联系方式，公众号二维码继续保留当前明确占位，直到用户提供真实图片。
+- src/consts.ts：站点信息；src/data/contacts.ts：公众号名称、简介与二维码路径；图片放在 public/images/。二维码使用用户提供的完整原图，替换后检查加载与显示。
 - scripts/：构建与浏览器检查；.github/workflows/：GitHub Pages 部署。
 - dist/ 是生成结果；修改源文件后重新构建，不直接维护产物。构建只输出 dist，保持现有单一产物流程。
 
