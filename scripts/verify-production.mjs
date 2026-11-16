@@ -10,13 +10,26 @@ async function walk(dir) {
   return (await Promise.all((await fs.readdir(dir, { withFileTypes: true })).map((entry) => entry.isDirectory() ? walk(path.join(dir, entry.name)) : path.join(dir, entry.name)))).flat();
 }
 const pages = (await walk(root)).filter((file) => file.endsWith('.html'));
+const redirectPaths = new Set();
 for (const file of pages) {
   const html = await fs.readFile(file, 'utf8');
   const relative = path.relative(root, file).split(path.sep).join('/');
   // Astro renders the custom 404 with a /404/ URL while emitting 404.html.
   const pathname = relative === '404.html' ? '404/' : relative.endsWith('index.html') ? relative.slice(0, -10) : relative;
   const canonical = html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
-  assert.equal(canonical, new URL(pathname, site).href, 'Incorrect production canonical: ' + relative);
+  const pageUrl = new URL(pathname, site);
+  const refresh = html.match(/<meta http-equiv="refresh" content="0; url=([^"]+)"/i)?.[1];
+  if (refresh) {
+    const destination = new URL(refresh, pageUrl);
+    assert.equal(destination.origin, site.origin, 'Redirect leaves the site: ' + relative);
+    assert.notEqual(destination.pathname, pageUrl.pathname, 'Redirect points to itself: ' + relative);
+    assert(canonical, 'Missing redirect canonical: ' + relative);
+    assert.equal(new URL(canonical, pageUrl).href, destination.href, 'Incorrect redirect canonical: ' + relative);
+    await fs.access(path.join(root, decodeURIComponent(destination.pathname.slice(1)), 'index.html'));
+    redirectPaths.add(pageUrl.pathname);
+  } else {
+    assert.equal(canonical, pageUrl.href, 'Incorrect production canonical: ' + relative);
+  }
   assert(!/(?:https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?|file:\/\/\/)/i.test(html), 'Local URL leaked into production: ' + relative);
   if (relative !== '404.html') assert(!/<meta[^>]*name="robots"[^>]*content="[^"]*noindex/i.test(html), 'Published page blocked from indexing: ' + relative);
 }
@@ -25,7 +38,9 @@ for (const name of ['rss.xml', 'sitemap-index.xml', 'sitemap-0.xml']) {
   const xml = await fs.readFile(path.join(root, name), 'utf8');
   assert(!/localhost|127\.0\.0\.1|file:\/\/\//i.test(xml), 'Local URL leaked into ' + name);
   for (const match of xml.matchAll(/<(?:link|loc)>([^<]+)<\/(?:link|loc)>/g)) {
-    assert.equal(new URL(match[1]).origin, site.origin, 'Wrong public origin in ' + name);
+    const url = new URL(match[1]);
+    assert.equal(url.origin, site.origin, 'Wrong public origin in ' + name);
+    assert(!redirectPaths.has(url.pathname), 'Redirect URL listed in ' + name + ': ' + url.pathname);
     urls++;
   }
 }
