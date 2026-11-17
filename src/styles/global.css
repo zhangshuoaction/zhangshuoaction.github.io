@@ -951,6 +951,10 @@ html {
 .prose a:hover {
   text-decoration-color:var(--interactive)
 }
+.article-layout article.prose a:any-link {
+  color:#2761e3;
+  text-decoration-color:currentColor
+}
 .prose blockquote {
   margin-left:0;
   margin-right:0;
